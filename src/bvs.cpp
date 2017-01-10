@@ -28,21 +28,17 @@ Node *Node::getRight() const {
     return right;
 }
 
-void Node::setLeft( Node &newNode ) {
-//    cout << "new node: " << &newNode << endl;
+void Node::setLeft( Node &newNode ) {//ano, este to opravim, resp, zamyslim sa nad tym
     left = new Node;
-//    cout << "created new node " << endl;
     if( &newNode != nullptr ) {
         *left = newNode;
         return;
     }
     left = nullptr;
-    //    cout << "set new node: " << left << endl;
     return;
-
 }
 
-void Node::setRight( Node &newNode ) {
+void Node::setRight( Node &newNode ) { //ano, este to opravim, resp, zamyslim sa nad tym
     right = new Node;
     if( &newNode != nullptr ) {
         *right = newNode;
@@ -52,8 +48,26 @@ void Node::setRight( Node &newNode ) {
     return;
 }
 
+void Node::setParent( Node *newNode ) {//ano, este to opravim, resp, zamyslim sa nad tym
+    parent = new Node;
+    if( &newNode != nullptr ) {
+        parent = newNode;
+        return;
+    }
+    parent = nullptr;
+    return;
+}
+
 void Node::setValue(const int newData) {
     data = newData;
+}
+
+int Node::left_height() {
+    return (left != nullptr) ? left->getHeight() : 0;
+}
+
+int Node::right_height() {
+    return (right != nullptr) ? right->getHeight() : 0;
 }
 
 //BVS
@@ -62,7 +76,7 @@ BVS::BVS(const int *array ) {
     const int *pom = array;
     pom++;
 
-    while( *pom != '\0' ) { //ako zistit dlzku pola? array.size() ? nie. neviem
+    while( *pom != '\0' ) { // ano este to opravim
         insertNode( *pom, root);
         pom++;
     }
@@ -95,11 +109,11 @@ bool BVS::insertNode(int data, Node *rootParam ) {
     return false;
 }
 
-string BVS::getInorder(Node &root) const {
-   if( &root == nullptr ) {
+string BVS::getInorder(Node &node) const {
+   if( &node == nullptr ) {
        return "";
    }
-    return getInorder(*root.getLeft()) + "," + to_string(root.getValue()) + getInorder(*root.getRight());
+    return getInorder(*node.getLeft()) + "," + to_string(node.getValue()) + getInorder(*node.getRight());
 }
 
 string BVS::inorder() const {
@@ -119,11 +133,11 @@ string BVS::preorder() const {
     return result.substr(1,result.length());
 }
 
-string BVS::getPostorder(Node &root) const {
-    if( &root == nullptr ) {
+string BVS::getPostorder(Node &node) const {
+    if( &node == nullptr ) {
         return "";
     }
-    return getPostorder(*root.getLeft()) + getPostorder(*root.getRight()) + "," + to_string(root.getValue());
+    return getPostorder(*node.getLeft()) + getPostorder(*node.getRight()) + "," + to_string(node.getValue());
 }
 
 string BVS::postorder() const {
@@ -174,7 +188,7 @@ pair<Node *,Node *> BVS::minNodeInSubtree( Node *rootNode ) const { //ci sa nepr
     return make_pair( parent, rootNode);
 }
 
-Node *BVS::delNode(Node &rootNode, int data) {
+Node *BVS::delNode(Node &rootNode, int data) { //komenty budem este potrebovat, zmazem neskor
     if( data > rootNode.getValue() ) {
         Node *k = delNode( *rootNode.getRight(), data );
         rootNode.setRight( *k );
@@ -225,35 +239,36 @@ void BVS::deleteNode( int data ) {
 //AVL
 AVL::AVL( const int *array ) {
     root = new Node(array[0]);
+    Node *v = nullptr;
+    root->setParent(v);
     const int *pom = array;
     pom++;
 
-    while( *pom != '\0' ) { //ako zistit dlzku pola? array.size() ? nie. neviem
+    while( *pom != '\0' ) { // ano, neskor, viem.
         insertNode( *pom, root);
         pom++;
     }
 };
 
 bool AVL::insertNode(int data, Node *rootParam) {
+    cout << endl;
     if( data > rootParam->getValue() ) {
-//        cout << "I'm going right? like" << endl;
         if( rootParam->getRight() == nullptr ) {
-//            cout << "vytvaram praveho syna" << endl;
             Node k(data);
             rootParam->setRight(k);
-            rebalance( *rootParam->getRight() );
+            rootParam->getRight()->setParent( rootParam );
+            rebalance( rootParam->getRight() );
             return true;
         }
         return insertNode(data, rootParam->getRight() );
     }
 
     if( data < rootParam->getValue() ) {
-//        cout << "I'm going left" << endl;
         if( rootParam->getLeft() == nullptr ) {
-//            cout << "vytvaram laveho syna" << endl;
             Node k(data);
             rootParam->setLeft(k);
-            rebalance( *rootParam->getLeft() );
+            rootParam->getLeft()->setParent( rootParam );
+            rebalance( rootParam->getLeft() );
             return true;
         }
         return insertNode(data, rootParam->getLeft());
@@ -262,53 +277,116 @@ bool AVL::insertNode(int data, Node *rootParam) {
     return false;
 };
 
-//TODO
 bool AVL::deleteNode(int data) {
-
+    return true;
 };
 
-//TODO
-void AVL::rebalance(Node &node) {
+void AVL::rebalance(Node *node) {
+//    cout << "rebalancing: " << node->getValue() << endl;
     int oldHeight = 0;
-    while( &node != nullptr) {
-        oldHeight = node.getHeight();
-        if( !isBalanced(node)) {
-            node = restructure( tall_grandchild(node) );
-            recomputeHeight( *node.getLeft() );
-            recomputeHeight( *node.getRight() );
+    Node *k = new Node(5);
+
+    while( node != nullptr && k != nullptr ) { // pozor na toto lebo prepises nejaky node
+        cout << endl << endl;
+//        cout << "rebalancing: " << node->getValue() << endl;
+        oldHeight = node->getHeight();
+        if( !isBalanced(*node) ) {
+            cout << "HURRRAAAAAAAAAAAAA" << endl;
+            cout << node->getValue() << " is not balanced" << endl;
+            Node *pom = tall_grandchild(node);
+            node = restructure( pom );
+            recomputeHeight( node->getLeft() );
+            recomputeHeight( node->getRight() );
         }
         recomputeHeight(node);
-        if( node.getHeight() == oldHeight ) {
-            node = nullptr;
+//        cout << "node height after recomputing: " << node->getHeight() << endl;
+//        cout << "right height after recomputing: " << node->right_height() << endl;
+        if( node->getHeight() == oldHeight && node->getHeight() != 1 ) { //som pridala ze vyska nie je 1
+            k = nullptr; //aby po pridani noveho prvku recomputol vsetky pred nim
         } else {
-            node = node.getParent(); //TODO
+            if( node->getParent() == nullptr ) { //pom_node = pom_node->getParent() ak parent je nullptr-> segmFault
+//                cout << "parent nebude" << endl;
+                k = nullptr;
+            } else {
+//                cout << "parent bude: " << node->getParent()->getValue() << endl;
+                node = node->getParent();
+//                cout << "height of right child after recomp: " << node->getRight()->getHeight() << endl;
+            }
+//            pom_node = *pom_node.getParent();
         }
     }
 };
 
 bool AVL::isBalanced( Node &node ) const {
-    //abs(node.left_height() - node.right_height()) <= 1
+    cout << node.left_height() << " - " << node.right_height() << endl;
     return abs(node.left_height() - node.right_height()) <= 1;
 }
 
-void AVL::recomputeHeight(Node &node) {
-    //node._height = 1 + max(node.left_height(), node.right_height())
-    node.setHeight(1 + max(node.left_height(), node.right_height()) );
+void AVL::recomputeHeight(Node *node) {
+//    cout << "old height is: " << node->getHeight() << endl;
+//    cout << "recomputing height left: " << node->left_height() << " right: " << node->right_height() << endl;
+//    cout << "max of heights: " << max(node->left_height(), node->right_height()) << endl;
+    node->setHeight(1 + max(node->left_height(), node->right_height()) );
+//    cout << "height of " << node->getValue() << " was set to " << node->getHeight() << endl;
 }
 
-Node AVL::tallChild(Node *node, bool favorleft = false) {
-    int pom = ( (favorleft == true) ? 1 : 0 );
-    if( node->left_height() + pom > node->right_height() ) {
-        return *node->getLeft();
+Node *AVL::tallChild(Node *node, bool favorleft) {
+    if( node->left_height() + favorleft > node->right_height() ) {
+        return node->getLeft();
     }
-    return *node->getRight();
+    return node->getRight();
 };
 
-Node AVL::tall_grandchild(Node &node) {
-    Node child = tallChild( &node );
-    bool alignment = ( child == node.getLeft());
-    return tallChild( &child, alignment);
+Node *AVL::tall_grandchild(Node *node) {
+    Node *child = tallChild( node );
+    bool alignment = ( child == node->getLeft());
+    return tallChild( child, alignment);
 };
 
+Node *AVL::restructure(Node *node) {
+    Node *y = node->getParent();
+    Node *z = y->getParent();
 
+    if( ( node == y->getRight() ) ==  ( y == z->getRight()) ) {
+        rotate( y );
+        return y;
+    } else {
+        rotate(node);
+        rotate(node);
+        return node;
+    }
+}
 
+void AVL::rotate(Node *node) {
+    Node *x = node;
+    Node *y = x->getParent();
+    Node *z = y->getParent();
+
+    if( z == nullptr ) {
+        setRoot( *x );
+        Node *k = nullptr;
+        x->setParent( k );
+    } else {
+        relink(*z, *x, (y == z->getLeft()) );
+    }
+
+    if( x == y->getLeft() ) {
+        relink( *y, *x->getRight(), true );
+        relink( *x, *y, false);
+    } else {
+        relink( *y, *x->getLeft(), false );
+        relink( *x, *y, true );
+    }
+}
+
+void AVL::relink(Node &parent, Node &child, bool make_left_child) {
+    if( make_left_child ) {
+        parent.setLeft(child);
+    } else {
+        parent.setRight(child);
+    }
+
+    if( &child != nullptr ) {
+        child.setParent(&parent);
+    }
+}

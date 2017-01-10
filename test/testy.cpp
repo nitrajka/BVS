@@ -215,19 +215,48 @@ TEST_F(Test, delNodeWithBothSonsInComplexTree ) {
 }
 
 //AVL
-TEST_F( Test, initializesWithArray ) { //viac testov
-    int *array = new int[6];
+TEST_F(Test, simpleLeftRotation) {
+    int *array = new int[4];
     array[0] = 4;
     array[1] = 6;
-    array[2] = 3;
-    array[3] = 2;
-    array[4] = 1;
-    array[5] = '\0';
-    BVS bvs(array);
-    ASSERT_EQ( bvs.getRoot()->getValue(), 4 );
-    ASSERT_EQ( bvs.getRoot()->getLeft()->getValue(), 2 );
-    ASSERT_EQ( bvs.getRoot()->getLeft()->getRight()->getValue(), 3 );
+    array[2] = 7;
+    array[3] = '\0';
+    AVL avl(array);
+    ASSERT_EQ( avl.getRoot()->getValue(), 6 );
+    ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 7);
+    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 4);
+    ASSERT_EQ( avl.getRoot()->getHeight(), 2);
+    ASSERT_EQ( avl.getRoot()->getRight()->getHeight(), 1);
+    ASSERT_EQ( avl.getRoot()->getLeft()->getHeight(), 1);
+    ASSERT_EQ( avl.getRoot(), avl.getRoot()->getRight()->getParent());
+//    ASSERT_EQ( avl.getRoot(), avl.getRoot()->getLeft()->getParent());
 }
+
+//TEST_F(Test, simpleRightRotation) {
+//    int *array = new int[4];
+//    array[0] = 4;
+//    array[1] = 3;
+//    array[2] = 2;
+//    array[3] = '\0';
+//    AVL avl(array);
+//    ASSERT_EQ( avl.getRoot()->getValue(), 3 );
+//    ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 4);
+//    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 2);
+//}
+
+//TEST_F( Test, initializesWithArray ) { //viac testov
+//    int *array = new int[6];
+//    array[0] = 4;
+//    array[1] = 6;
+//    array[2] = 3;
+//    array[3] = 2;
+//    array[4] = 1;
+//    array[5] = '\0';
+//    AVL avl(array);
+//    ASSERT_EQ( avl.getRoot()->getValue(), 4 );
+//    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 2 );
+//    ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 3 );
+//}
 
 
 //TEST_F( Test, insertAVLNode ) { //viac testov
