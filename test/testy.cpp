@@ -71,13 +71,8 @@ TEST_F(Test, InsertsNodes ) {
 }
 
 TEST_F(Test, InitializesWithArray ) {
-    int *array = new int[5];
-    array[0] = 4;
-    array[1] = 6;
-    array[2] = 3;
-    array[3] = 2;
-    array[4] = '\0';
-    BVS n(array);
+    int array[4] = {4,6,3,2};
+    BVS n(array, 4);
     ASSERT_EQ( n.getRoot()->getValue(), 4 );
     ASSERT_EQ( n.getRoot()->getRight()->getValue(), 6 );
     ASSERT_EQ( n.getRoot()->getLeft()->getValue(), 3 );
@@ -120,6 +115,15 @@ TEST_F(Test, postorder ) {
     ASSERT_EQ( bvs.postorder(), "2,4,3,6,8,7,5" );
 }
 
+TEST_F(Test, emptyInorderPreorderPostorder ) {
+    Node n(5);
+    BVS bvs(&n);
+    bvs.deleteNode(5);
+    ASSERT_EQ( bvs.inorder(), "" );
+    ASSERT_EQ( bvs.preorder(), "" );
+    ASSERT_EQ( bvs.postorder(), "" );
+}
+
 TEST_F(Test, isNode ) {
     Node n(5);
     BVS bvs(&n);
@@ -131,6 +135,17 @@ TEST_F(Test, isNode ) {
     bvs.insertNode(2, bvs.getRoot());
     ASSERT_EQ( bvs.isNode(2), true );
     ASSERT_EQ( bvs.isNode(20), false );
+}
+
+TEST_F(Test, isNodeInEmptyTree) {
+    Node n(5);
+    BVS bvs(&n);
+    bvs.deleteNode(5);
+    try {
+        bvs.isNode(5);
+    } catch(std::underflow_error const &err) {
+        EXPECT_EQ( err.what(), std::string("Binary search tree instance is empty."));
+    }
 }
 
 TEST_F(Test, getMax ) {
@@ -157,6 +172,23 @@ TEST_F(Test, getMin ) {
     ASSERT_EQ( bvs.getMin(), 2 );
 }
 
+TEST_F(Test, getMaxANDgetMinInEmptyTree) {
+    Node n(5);
+    BVS bvs(&n);
+    bvs.deleteNode(5);
+    try {
+        bvs.getMax();
+    } catch(std::underflow_error const &err) {
+        EXPECT_EQ( err.what(), std::string("Binary search tree instance is empty."));
+    }
+
+    try {
+        bvs.getMin();
+    } catch(std::underflow_error const &err) {
+        EXPECT_EQ( err.what(), std::string("Binary search tree instance is empty."));
+    }
+}
+
 //delete node + pridat testy na mazanie nullptr (osetrit v kode ci tam taky vrchol je)
 TEST_F(Test, delLeafs ) {
     Node n(5);
@@ -167,6 +199,21 @@ TEST_F(Test, delLeafs ) {
     ASSERT_EQ( bvs.getRoot()->getLeft(), nullptr );
     bvs.deleteNode(7);
     ASSERT_EQ( bvs.getRoot()->getRight(), nullptr );
+}
+
+TEST_F(Test, deleteEmptyBVS ) {
+    Node n(5);
+    BVS bvs(&n);
+    bvs.deleteNode(5);
+
+    try {
+        bvs.deleteNode(5);
+    } catch(std::underflow_error const &err) {
+        EXPECT_EQ( err.what(), std::string("Binary search tree instance is empty."));
+    }
+
+    bvs.insertNode(5, bvs.getRoot());
+    ASSERT_EQ(bvs.getRoot()->getValue(), 5);
 }
 
 TEST_F(Test, delNodeWithLeftSon ) {
@@ -216,12 +263,8 @@ TEST_F(Test, delNodeWithBothSonsInComplexTree ) {
 
 //AVL
 TEST_F(Test, simpleLeftRotation) {
-    int *array = new int[4];
-    array[0] = 4;
-    array[1] = 6;
-    array[2] = 7;
-    array[3] = '\0';
-    AVL avl(array);
+    int array[3] = {4,6,7};
+    AVL avl(array, 3);
     ASSERT_EQ( avl.getRoot()->getValue(), 6 );
     ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 7);
     ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 4);
@@ -229,51 +272,125 @@ TEST_F(Test, simpleLeftRotation) {
     ASSERT_EQ( avl.getRoot()->getRight()->getHeight(), 1);
     ASSERT_EQ( avl.getRoot()->getLeft()->getHeight(), 1);
     ASSERT_EQ( avl.getRoot(), avl.getRoot()->getRight()->getParent());
-//    ASSERT_EQ( avl.getRoot(), avl.getRoot()->getLeft()->getParent());
+    ASSERT_EQ( avl.getRoot(), avl.getRoot()->getLeft()->getParent());
 }
 
-//TEST_F(Test, simpleRightRotation) {
-//    int *array = new int[4];
-//    array[0] = 4;
-//    array[1] = 3;
-//    array[2] = 2;
-//    array[3] = '\0';
-//    AVL avl(array);
-//    ASSERT_EQ( avl.getRoot()->getValue(), 3 );
-//    ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 4);
-//    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 2);
-//}
+TEST_F(Test, simpleRightRotation) {
+    int array[3] = {4,3,2};
+    AVL avl(array, 3);
+    ASSERT_EQ( avl.getRoot()->getValue(), 3 );
+    ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 4);
+    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 2);
+    ASSERT_EQ( avl.getRoot()->getHeight(), 2);
+    ASSERT_EQ( avl.getRoot()->getRight()->getHeight(), 1);
+    ASSERT_EQ( avl.getRoot()->getLeft()->getHeight(), 1);
+    ASSERT_EQ( avl.getRoot(), avl.getRoot()->getRight()->getParent());
+    ASSERT_EQ( avl.getRoot(), avl.getRoot()->getLeft()->getParent());
+}
 
-//TEST_F( Test, initializesWithArray ) { //viac testov
-//    int *array = new int[6];
-//    array[0] = 4;
-//    array[1] = 6;
-//    array[2] = 3;
-//    array[3] = 2;
-//    array[4] = 1;
-//    array[5] = '\0';
-//    AVL avl(array);
-//    ASSERT_EQ( avl.getRoot()->getValue(), 4 );
-//    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 2 );
-//    ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 3 );
-//}
+TEST_F(Test, rightLeftRotation ) {
+    int array[3] = {4,6,5};
+    AVL avl(array, 3);
+    ASSERT_EQ( avl.getRoot()->getValue(), 5 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 4 );
+    ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 6 );
+}
 
+TEST_F(Test, leftRightRotation ) {
+    int array[3] = {4,2,3};
+    AVL avl(array, 3);
+    ASSERT_EQ( avl.getRoot()->getValue(), 3 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 2 );
+    ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 4 );
+}
 
-//TEST_F( Test, insertAVLNode ) { //viac testov
-//    Node n(7);
-//    AVL avl(&n);
-//    avl.insertNode(8, avl.getRoot());
-//    avl.insertNode(9, avl.getRoot());
-//    ASSERT_EQ( avl.getRoot()->getValue(), 8);
-//    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 7 );
-//    ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 9 );
-//    avl.insertNode(10, avl.getRoot());
-//    avl.insertNode(6, avl.getRoot());
-//    avl.insertNode(5, avl.getRoot());
-//    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 6);
-//    ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 7 );
-//    ASSERT_EQ( avl.getRoot()->getRight()->getLeft()->getValue(), 5 );
-//    //koniec skontrolovat inorderom
-//}
+TEST_F( Test, insertAVLNode ) { //viac testov
+    int array[1] = {7};
+    AVL avl(array, 1);
+    avl.insertNode(8, avl.getRoot());
+    avl.insertNode(9, avl.getRoot());
+    ASSERT_EQ( avl.getRoot()->getValue(), 8);
+    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 7 );
+    ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 9 );
+    avl.insertNode(10, avl.getRoot());
+    avl.insertNode(6, avl.getRoot());
+    avl.insertNode(5, avl.getRoot());
+    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 6);
+    ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 7 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 5 );
+    ASSERT_EQ( avl.inorder(), "5,6,7,8,9,10");
+}
 
 //delete AVL Node tests
+TEST_F( Test, deleteLeafsAVL ) {
+    int array[6] = {7,8,9,10,6,5};
+    AVL avl(array, 6);
+    ASSERT_EQ( avl.inorder(), "5,6,7,8,9,10");
+    avl.deleteNode(5);
+    ASSERT_EQ( avl.inorder(), "6,7,8,9,10");
+}
+
+TEST_F(Test, deleteEmptyAVL ) {
+    int array[1] = {5};
+    AVL avl(array, 1);
+    avl.deleteNode(5);
+//    std::cout << "prazdny strom: " << bvs.getRoot() << std::endl;
+
+    try {
+        avl.deleteNode(5);
+    } catch(std::underflow_error const &err) {
+        EXPECT_EQ( err.what(), std::string("Binary search tree instance is empty."));
+    }
+
+    avl.insertNode(5, avl.getRoot());
+    ASSERT_EQ( avl.getRoot()->getValue(), 5);
+
+}
+
+TEST_F(Test, delNodeWithLeftSonInAVL ) {
+    int array[8] = {5,7,3,8,6,4,2,1};
+    AVL avl(array, 8);
+    avl.deleteNode(2);
+    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 3 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 1);
+    ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 4);
+}
+
+TEST_F(Test, delNodeWithRightSonInAVL ) {
+    int array[8] = {5,7,3,8,6,4,2,9};
+    AVL avl(array, 8);
+    avl.deleteNode(8);
+    ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 7 );
+    ASSERT_EQ( avl.getRoot()->getRight()->getLeft()->getValue(), 6);
+    ASSERT_EQ( avl.getRoot()->getRight()->getRight()->getValue(), 9);
+}
+
+//TEST_F(Test, delNodeWithBothSonsInSimpleTreeInAVL ) { //nejde
+//    int array[8] = {5,7,3,8,6,4,2,1};
+//    AVL avl(array, 8);
+//    avl.deleteNode(3);
+//    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 2 );
+//    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 1);
+//    ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 4);
+//
+//}
+
+//TEST_F(Test, delNodeWithBothSonsInSimpleTreeInAVL1 ) { //nejde
+//    int array[8] = {5,7,3,8,6,4,2,1};
+//    AVL avl(array, 8);
+//    avl.deleteNode(4);
+//    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 2 );
+//    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 1);
+//    ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 3);
+//}
+//
+//TEST_F(Test, delNodeWithBothSonsInComplexTreeInAVL ) { //nejde
+//    int array[7] = {5,7,3,8,6,4,2};
+//    AVL avl(array, 7);
+//    avl.deleteNode(5);
+//    ASSERT_EQ( avl.getRoot()->getValue(), 4);
+//    ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 7 );
+//    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 3);
+//    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 2);
+//    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft(), nullptr);
+//}

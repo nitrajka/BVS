@@ -20,15 +20,11 @@ int Node::getValue() const {
     return data;
 }
 
-Node *Node::getLeft() const {
-    return left;
-}
-
-Node *Node::getRight() const {
-    return right;
-}
-
 void Node::setLeft( Node &newNode ) {//ano, este to opravim, resp, zamyslim sa nad tym
+//    if( &newNode != nullptr ) {
+//        left = new Node;
+//        *left = newNode;
+//    }
     left = new Node;
     if( &newNode != nullptr ) {
         *left = newNode;
@@ -46,6 +42,14 @@ void Node::setRight( Node &newNode ) { //ano, este to opravim, resp, zamyslim sa
     }
     right = nullptr;
     return;
+}
+
+void Node::setLeft(Node *node) {
+    left = node;
+}
+
+void Node::setRight( Node *node ) {
+    right = node;
 }
 
 void Node::setParent( Node *newNode ) {//ano, este to opravim, resp, zamyslim sa nad tym
@@ -71,18 +75,20 @@ int Node::right_height() {
 }
 
 //BVS
-BVS::BVS(const int *array ) {
+BVS::BVS(const int array[], const int size) {
     root = new Node(array[0]);
-    const int *pom = array;
-    pom++;
 
-    while( *pom != '\0' ) { // ano este to opravim
-        insertNode( *pom, root);
-        pom++;
+    for ( int i = 0; i < size; i++ ) {
+        insertNode( array[i], root);
     }
 }
 
 bool BVS::insertNode(int data, Node *rootParam ) {
+    if( root == nullptr ) {
+        Node *n = new Node(data);
+        root = n;
+        return true;
+    }
 
     if( data > rootParam->getValue() ) {
 //        cout << "I'm going right? like" << endl;
@@ -117,6 +123,9 @@ string BVS::getInorder(Node &node) const {
 }
 
 string BVS::inorder() const {
+    if( root == nullptr ) {
+        return "";
+    }
     string result = getInorder(*root);
     return result.substr(1,result.length());
 }
@@ -129,6 +138,9 @@ string BVS::getPreorder(Node &root) const {
 }
 
 string BVS::preorder() const {
+    if( root == nullptr ) {
+        return "";
+    }
     string result = getPreorder(*root);
     return result.substr(1,result.length());
 }
@@ -141,29 +153,36 @@ string BVS::getPostorder(Node &node) const {
 }
 
 string BVS::postorder() const {
+    if( root == nullptr ) {
+        return "";
+    }
     string result = getPostorder(*root);
     return result.substr(1,result.length());
 }
 
 bool BVS::isNode(int data) const {
+    if( root == nullptr ) {
+        throw underflow_error("Binary search tree instance is empty.");
+    }
     Node *startRoot = root;
     while( startRoot != nullptr ) {
-        if( startRoot->getValue() == data ) {
-            return true;
-        }
 
         if ( data < startRoot->getValue() ) {
             startRoot = startRoot->getLeft();
-        }
-
-        if( data > startRoot-> getValue() ) {
+        } else if( data > startRoot-> getValue() ) {
             startRoot = startRoot->getRight();
+        } else {
+            return true;
         }
     }
     return false;
 }
 
 int BVS::getMax() const {
+    if( root == nullptr ) {
+        throw underflow_error("Binary search tree instance is empty.");
+    }
+
     Node *startRoot = root;
     while( startRoot->getRight() != nullptr ) {
         startRoot = startRoot->getRight();
@@ -172,6 +191,10 @@ int BVS::getMax() const {
 }
 
 int BVS::getMin() const {
+    if( root == nullptr ) {
+        throw underflow_error("Binary search tree instance is empty.");
+    }
+
     Node *startRoot = root;
     while( startRoot->getLeft() != nullptr ) {
         startRoot = startRoot->getLeft();
@@ -179,79 +202,85 @@ int BVS::getMin() const {
     return startRoot->getValue();
 }
 
-pair<Node *,Node *> BVS::minNodeInSubtree( Node *rootNode ) const { //ci sa neprepise parent po prepisani rootNode
+pair<Node *,Node *> BVS::minNodeInSubtree( Node *currentNode ) const { //ci sa neprepise parent po prepisani currentNode
     Node *parent = nullptr;
-    while( rootNode->getLeft() != nullptr ) {
-        parent = rootNode;
-        rootNode = rootNode->getLeft();
+    while( currentNode->getLeft() != nullptr ) {
+        parent = currentNode;
+        currentNode = currentNode->getLeft();
     }
-    return make_pair( parent, rootNode);
+    return {parent, currentNode};
 }
 
-Node *BVS::delNode(Node &rootNode, int data) { //komenty budem este potrebovat, zmazem neskor
-    if( data > rootNode.getValue() ) {
-        Node *k = delNode( *rootNode.getRight(), data );
-        rootNode.setRight( *k );
+Node *BVS::delNode(Node &currentNode, int data) { //komenty budem este potrebovat, zmazem neskor
+//    cout << "delete function of AVL" << endl;
+    if( data > currentNode.getValue() ) {
+        Node *k = delNode( *currentNode.getRight(), data );
+        currentNode.setRight( *k );
     }
 
-    if( data < rootNode.getValue() ) {
+    if( data < currentNode.getValue() ) {
 //        cout << "deleting lower node " << endl;
-//        cout << "left node value: " << rootNode.getLeft()->getValue() << endl;
-        Node *n = delNode( *rootNode.getLeft(), data );
+//        cout << "left node value: " << currentNode.getLeft()->getValue() << endl;
+        Node *n = delNode( *currentNode.getLeft(), data );
 //        cout << "created new node: "  << n << endl;
-        rootNode.setLeft( *n );
-//        cout << "left node value" << rootNode.getLeft() << endl;
+        currentNode.setLeft( *n );
+//        cout << "left node value" << currentNode.getLeft() << endl;
     }
 
-    if( data == rootNode.getValue() ) {
-        if( rootNode.getLeft() == nullptr && rootNode.getRight() == nullptr ) {
-//            cout << "no children: "  << rootNode.getValue() << endl;
+    if( data == currentNode.getValue() ) {
+        if( currentNode.getLeft() == nullptr && currentNode.getRight() == nullptr ) {
+//            cout << "no children: "  << currentNode.getValue() << endl;
             Node *p = nullptr;
             return p;
-        } else if ( rootNode.getLeft() != nullptr && rootNode.getRight() == nullptr ) {
+        } else if ( currentNode.getLeft() != nullptr && currentNode.getRight() == nullptr ) {
 //            cout << "left son: " << endl;
-            return rootNode.getLeft();
-        } else if( rootNode.getLeft() == nullptr && rootNode.getRight() != nullptr ) {
-            return rootNode.getRight();
+            return currentNode.getLeft();
+        } else if( currentNode.getLeft() == nullptr && currentNode.getRight() != nullptr ) {
+            return currentNode.getRight();
         } else {
-//            cout << "2 children: " << rootNode.getValue() << endl;
+//            cout << "2 children: " << currentNode.getValue() << endl;
             //looking for the leftest son in right subtree -> it's value should be near to the root's
-            pair<Node *, Node *> parentAndNode = minNodeInSubtree( rootNode.getRight() );
+            pair<Node *, Node *> parentAndNode = minNodeInSubtree( currentNode.getRight() );
 
             if( parentAndNode.first == nullptr ) {
                 Node *p = nullptr;
-                rootNode.setRight( *p );
+                currentNode.setRight( *p );
             } else {
                 Node *k = delNode( *parentAndNode.second , parentAndNode.second->getValue() );
                 parentAndNode.first->setLeft( *k );
             }
 
-            rootNode.setValue(parentAndNode.second->getValue());
+            currentNode.setValue(parentAndNode.second->getValue());
         }
     }
-    return &rootNode;
+    return &currentNode;
 }
 
 void BVS::deleteNode( int data ) {
+    if( root == nullptr ) {
+        throw underflow_error("Binary search tree instance is empty.");
+    }
     root = delNode(*root, data);
 }
 
 //AVL
-AVL::AVL( const int *array ) {
+AVL::AVL( const int array[], const int size ) {
     root = new Node(array[0]);
     Node *v = nullptr;
     root->setParent(v);
-    const int *pom = array;
-    pom++;
 
-    while( *pom != '\0' ) { // ano, neskor, viem.
-        insertNode( *pom, root);
-        pom++;
+    for ( int i = 1; i < size; i++ ) {
+        insertNode( array[i], root);
     }
 };
 
 bool AVL::insertNode(int data, Node *rootParam) {
-    cout << endl;
+    if( root == nullptr ) {
+        Node *n = new Node(data);
+        root = n;
+        return true;
+    }
+//    cout << endl;
     if( data > rootParam->getValue() ) {
         if( rootParam->getRight() == nullptr ) {
             Node k(data);
@@ -277,9 +306,52 @@ bool AVL::insertNode(int data, Node *rootParam) {
     return false;
 };
 
-bool AVL::deleteNode(int data) {
-    return true;
-};
+Node *AVL::delNode(Node &currentNode, int data) {
+//    cout << "delete of avl: " << currentNode.getValue() << " data: " << data << endl;
+    if( data > currentNode.getValue() ) {
+        Node *k = delNode( *currentNode.getRight(), data );
+        currentNode.setRight( *k );
+    }
+
+    if( data < currentNode.getValue() ) {
+    //        cout << "deleting lower node " << endl;
+    //        cout << "left node value: " << currentNode.getLeft()->getValue() << endl;
+        Node *n = delNode( *currentNode.getLeft(), data );
+    //        cout << "created new node: "  << n << endl;
+        currentNode.setLeft( *n );
+    //        cout << "left node value" << currentNode.getLeft() << endl;
+    }
+
+    if( data == currentNode.getValue() ) {
+
+        if( currentNode.getLeft() == nullptr && currentNode.getRight() == nullptr ) {
+    //            cout << "no children: "  << currentNode.getValue() << endl;
+            Node *p = nullptr;
+            return p;
+        } else if ( currentNode.getLeft() != nullptr && currentNode.getRight() == nullptr ) {
+    //            cout << "left son: " << endl;
+            return currentNode.getLeft();
+        } else if( currentNode.getLeft() == nullptr && currentNode.getRight() != nullptr ) {
+            return currentNode.getRight();
+        } else {
+    //            cout << "2 children: " << currentNode.getValue() << endl;
+    //looking for the leftest son in right subtree -> it's value should be near to the root's
+            pair<Node *, Node *> parentAndNode = minNodeInSubtree( currentNode.getRight() );
+
+            if( parentAndNode.first == nullptr ) {
+                Node *p = nullptr;
+                currentNode.setRight( *p );
+            } else {
+                Node *k = delNode( *parentAndNode.second , parentAndNode.second->getValue() );
+                parentAndNode.first->setLeft( *k );
+            }
+
+            currentNode.setValue(parentAndNode.second->getValue());
+        }
+
+    }
+    return &currentNode;
+}
 
 void AVL::rebalance(Node *node) {
 //    cout << "rebalancing: " << node->getValue() << endl;
@@ -287,12 +359,12 @@ void AVL::rebalance(Node *node) {
     Node *k = new Node(5);
 
     while( node != nullptr && k != nullptr ) { // pozor na toto lebo prepises nejaky node
-        cout << endl << endl;
-//        cout << "rebalancing: " << node->getValue() << endl;
+//        cout << endl << endl;
+//        cout << "rebalancing parent: " << node->getValue() << endl;
         oldHeight = node->getHeight();
         if( !isBalanced(*node) ) {
-            cout << "HURRRAAAAAAAAAAAAA" << endl;
-            cout << node->getValue() << " is not balanced" << endl;
+//            cout << "HURRRAAAAAAAAAAAAA" << endl;
+//            cout << node->getValue() << " is not balanced" << endl;
             Node *pom = tall_grandchild(node);
             node = restructure( pom );
             recomputeHeight( node->getLeft() );
@@ -318,7 +390,7 @@ void AVL::rebalance(Node *node) {
 };
 
 bool AVL::isBalanced( Node &node ) const {
-    cout << node.left_height() << " - " << node.right_height() << endl;
+//    cout << node.left_height() << " - " << node.right_height() << endl;
     return abs(node.left_height() - node.right_height()) <= 1;
 }
 
@@ -363,30 +435,30 @@ void AVL::rotate(Node *node) {
     Node *z = y->getParent();
 
     if( z == nullptr ) {
-        setRoot( *x );
+        setRoot( x );
         Node *k = nullptr;
         x->setParent( k );
     } else {
-        relink(*z, *x, (y == z->getLeft()) );
+        relink( z, x, (y == z->getLeft()) );
     }
 
     if( x == y->getLeft() ) {
-        relink( *y, *x->getRight(), true );
-        relink( *x, *y, false);
+        relink( y, x->getRight(), true );
+        relink( x, y, false);
     } else {
-        relink( *y, *x->getLeft(), false );
-        relink( *x, *y, true );
+        relink( y, x->getLeft(), false );
+        relink( x, y, true );
     }
 }
 
-void AVL::relink(Node &parent, Node &child, bool make_left_child) {
+void AVL::relink(Node *parent, Node *child, bool make_left_child) {
     if( make_left_child ) {
-        parent.setLeft(child);
+        parent->setLeft(child);
     } else {
-        parent.setRight(child);
+        parent->setRight(child);
     }
 
-    if( &child != nullptr ) {
-        child.setParent(&parent);
+    if( child != nullptr ) {
+        child->setParent(parent);
     }
 }

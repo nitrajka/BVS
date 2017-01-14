@@ -13,11 +13,11 @@ class Node {
     Node *parent;
     int height = 1;
 public:
-    Node( int const number , Node *leftChild = nullptr, Node *rightChild = nullptr );
+    Node( int const number, Node *leftChild = nullptr, Node *rightChild = nullptr );
     Node() {}
     int getValue() const;
-    Node *getLeft() const;
-    Node *getRight() const;
+    Node *getLeft() const {return left;}
+    Node *getRight() const {return right;}
     void setLeft(Node &newNode);
     void setRight(Node &newNode);
     void setValue(const int newData);
@@ -26,23 +26,25 @@ public:
     int left_height(); //testy
     int right_height(); //testy
     void setParent(Node *newData); //testy
-    Node *getParent() {return parent;}
+    Node *getParent() const {return parent;}
+    void setLeft(Node *node); //testy
+    void setRight(Node *node); //testy
 };
 
 class BVS {
     std::string getInorder(Node &root) const;
     std::string getPreorder(Node &root) const;
     std::string getPostorder(Node &root) const;
-    Node *delNode(Node &rootNode, int data);//testy
-    std::pair<Node *,Node *> minNodeInSubtree(Node *rootNode) const; //testy
+    virtual Node *delNode(Node &currentNode, int data);//testy
 protected:
     Node *root;
+    std::pair<Node *,Node *> minNodeInSubtree(Node *currentNode) const; //testy
 public:
     BVS() {}
     BVS( Node *node ) {root = node;}
-    BVS( const int *array );
+    BVS( const int array[], const int size );
     Node *getRoot() {return root;}
-    virtual bool insertNode(int data, Node *rootParam);
+    virtual bool insertNode(int data, Node *rootParam); //prerobit rootparam
     std::string inorder() const;
     std::string preorder() const;
     std::string postorder() const;
@@ -50,7 +52,6 @@ public:
     int getMax() const;
     int getMin() const;
     void deleteNode(int data);
-    void setRoot(Node &node) {root = &node;} //testy
 };
 
 class AVL: public BVS {
@@ -61,20 +62,15 @@ class AVL: public BVS {
     Node *tall_grandchild(Node *node);
     Node *restructure(Node *node);
     void rotate(Node *node);
-    void relink(Node &parent, Node &child, bool make_left_child);
+    void relink(Node *parent, Node *child, bool make_left_child);
+    void setRoot(Node *node) {root = node;}
+    Node *delNode(Node &currentNode, int data);//testy
 public:
     AVL() {}
-    AVL( const int *array ); //posielat dlzku array ako parameter
-    AVL( Node *node ) {root = node;}
+    AVL( const int array[], const int size ); //posielat dlzku array ako parameter
     bool insertNode(int data, Node *rootParam);
-    bool deleteNode(int data);
 };
 
 #endif //BVS_BVS_H
 
-//pomocne triedy: Node + implementovat templates pre rozne values (string, int)
-
-//constructor: kopirovaci
-//destructor
-
-//AVL
+//AVL ->delete node
