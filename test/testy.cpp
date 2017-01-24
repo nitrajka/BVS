@@ -53,6 +53,24 @@ TEST_F(Test, HasRootTest) {
     ASSERT_EQ( s.getRoot()->getValue(), 5);
 }
 
+TEST_F(Test, dontCreateWithEmptyArray ) {
+    int *a = new int [0];
+    a[0] = '\0';
+//    std::cout << "som tu" << std::endl;
+
+    try {
+        BVS bvs(a, 0);
+    } catch(std::underflow_error const &err) {
+        EXPECT_EQ( err.what(), std::string("Can't create empty bvs."));
+    }
+
+    int *b = new int [1];
+    b[0] = '\0';
+    BVS bvs(b, 1);
+    ASSERT_EQ( bvs.getRoot()->getValue(), 0);
+}
+
+
 TEST_F(Test, InsertsNodes ) {
     Node n(5);
     BVS bvs(&n);
@@ -72,16 +90,16 @@ TEST_F(Test, InsertsNodes ) {
 
 TEST_F(Test, InitializesWithArray ) {
     int array[4] = {4,6,3,2};
-    BVS n(array, 4);
-    ASSERT_EQ( n.getRoot()->getValue(), 4 );
-    ASSERT_EQ( n.getRoot()->getRight()->getValue(), 6 );
-    ASSERT_EQ( n.getRoot()->getLeft()->getValue(), 3 );
-    ASSERT_EQ( n.getRoot()->getLeft()->getLeft()->getValue(), 2 );
+    BVS bvs(array, 4);
+    ASSERT_EQ( bvs.getRoot()->getValue(), 4 );
+    ASSERT_EQ( bvs.getRoot()->getRight()->getValue(), 6 );
+    ASSERT_EQ( bvs.getRoot()->getLeft()->getValue(), 3 );
+    ASSERT_EQ( bvs.getRoot()->getLeft()->getLeft()->getValue(), 2 );
 }
 
 TEST_F(Test, inorder ) {
-    Node n(5);
-    BVS bvs(&n);
+    int array[1] = {5};
+    BVS bvs(array, 1);
     bvs.insertNode(7, bvs.getRoot());
     bvs.insertNode(3, bvs.getRoot());
     bvs.insertNode(8, bvs.getRoot());
@@ -304,21 +322,43 @@ TEST_F(Test, leftRightRotation ) {
     ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 4 );
 }
 
-TEST_F( Test, insertAVLNode ) { //viac testov
-    int array[1] = {7};
-    AVL avl(array, 1);
-    avl.insertNode(8, avl.getRoot());
-    avl.insertNode(9, avl.getRoot());
-    ASSERT_EQ( avl.getRoot()->getValue(), 8);
+TEST_F( Test, insertAVLNodesAndRebalance1 ) {
+    int array[1] = { 7 };
+    AVL avl( array, 1 );
+    avl.insertNode( 8, avl.getRoot());
+    avl.insertNode( 9, avl.getRoot());
+    ASSERT_EQ( avl.getRoot()->getValue(), 8 );
     ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 7 );
     ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 9 );
-    avl.insertNode(10, avl.getRoot());
-    avl.insertNode(6, avl.getRoot());
-    avl.insertNode(5, avl.getRoot());
-    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 6);
+    avl.insertNode( 10, avl.getRoot());
+    avl.insertNode( 6, avl.getRoot());
+    avl.insertNode( 5, avl.getRoot());
+    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 6 );
     ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 7 );
     ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 5 );
-    ASSERT_EQ( avl.inorder(), "5,6,7,8,9,10");
+    ASSERT_EQ( avl.inorder(), "5,6,7,8,9,10" );
+}
+
+TEST_F( Test, insertAVLNodesAndRebalance2 ) {
+    int array[8] = {13,15,10,16,11,5,4,6};
+    AVL avl(array, 8);
+    ASSERT_EQ( avl.getRoot()->getValue(), 13 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 10 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 11 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 5 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getLeft()->getValue(), 4 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getRight()->getValue(), 6 );
+    ASSERT_EQ( avl.inorder(), "4,5,6,10,11,13,15,16" );
+    avl.insertNode( 7, avl.getRoot() );
+    ASSERT_EQ( avl.getRoot()->getValue(), 13 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 6 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 10 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getLeft()->getValue(), 7 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getRight()->getValue(), 11 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 5 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getLeft()->getValue(), 4 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getRight(), nullptr );
+    ASSERT_EQ( avl.inorder(), "4,5,6,7,10,11,13,15,16" );
 }
 
 //delete AVL Node tests
@@ -334,7 +374,6 @@ TEST_F(Test, deleteEmptyAVL ) {
     int array[1] = {5};
     AVL avl(array, 1);
     avl.deleteNode(5);
-//    std::cout << "prazdny strom: " << bvs.getRoot() << std::endl;
 
     try {
         avl.deleteNode(5);
@@ -344,7 +383,6 @@ TEST_F(Test, deleteEmptyAVL ) {
 
     avl.insertNode(5, avl.getRoot());
     ASSERT_EQ( avl.getRoot()->getValue(), 5);
-
 }
 
 TEST_F(Test, delNodeWithLeftSonInAVL ) {
@@ -365,32 +403,32 @@ TEST_F(Test, delNodeWithRightSonInAVL ) {
     ASSERT_EQ( avl.getRoot()->getRight()->getRight()->getValue(), 9);
 }
 
-//TEST_F(Test, delNodeWithBothSonsInSimpleTreeInAVL ) { //nejde
-//    int array[8] = {5,7,3,8,6,4,2,1};
-//    AVL avl(array, 8);
-//    avl.deleteNode(3);
-//    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 2 );
-//    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 1);
-//    ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 4);
-//
-//}
+TEST_F(Test, delNodeWithBothSonsInSimpleTreeInAVLAndRebalance ) {
+    int array[8] = {5,7,3,8,6,4,2,1};
+    AVL avl(array, 8);
+    avl.deleteNodeAVL(3);
+    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 2 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 1);
+    ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 4);
+}
 
-//TEST_F(Test, delNodeWithBothSonsInSimpleTreeInAVL1 ) { //nejde
-//    int array[8] = {5,7,3,8,6,4,2,1};
-//    AVL avl(array, 8);
-//    avl.deleteNode(4);
-//    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 2 );
-//    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 1);
-//    ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 3);
-//}
-//
-//TEST_F(Test, delNodeWithBothSonsInComplexTreeInAVL ) { //nejde
-//    int array[7] = {5,7,3,8,6,4,2};
-//    AVL avl(array, 7);
-//    avl.deleteNode(5);
-//    ASSERT_EQ( avl.getRoot()->getValue(), 4);
-//    ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 7 );
-//    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 3);
-//    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 2);
-//    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft(), nullptr);
-//}
+TEST_F(Test, delLeafAndRebalance ) {
+    int array[8] = {5,7,3,8,6,4,2,1};
+    AVL avl(array, 8);
+    avl.deleteNodeAVL(4);
+    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 2 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 1);
+    ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 3);
+}
+
+TEST_F(Test, delRootWithBothSonsInComplexTreeInAVLAndRebalance ) {
+    int array[7] = {5,7,3,8,6,4,2};
+    AVL avl(array, 7);
+    avl.deleteNode(5);
+    ASSERT_EQ( avl.getRoot()->getValue(), 6);
+    ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 7 );
+    ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 3);
+    ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 2);
+    ASSERT_EQ( avl.getRoot()->getRight()->getLeft(), nullptr);
+}
+

@@ -51,7 +51,7 @@ public:
     bool isNode(int data) const;
     int getMax() const;
     int getMin() const;
-    void deleteNode(int data);
+    virtual void deleteNode(int data);
 };
 
 class AVL: public BVS {
@@ -64,11 +64,12 @@ class AVL: public BVS {
     void rotate(Node *node);
     void relink(Node *parent, Node *child, bool make_left_child);
     void setRoot(Node *node) {root = node;}
-    Node *delNode(Node &currentNode, int data);//testy
+    Node *delNode1(Node &currentNode, int data);//testy
 public:
     AVL() {}
     AVL( const int array[], const int size ); //posielat dlzku array ako parameter
     bool insertNode(int data, Node *rootParam);
+    void deleteNodeAVL(int data);
 };
 
 #endif //BVS_BVS_H
