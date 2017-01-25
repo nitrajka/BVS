@@ -21,36 +21,37 @@ public:
     void setLeft(Node &newNode);
     void setRight(Node &newNode);
     void setValue(const int newData);
-    int getHeight() const {return height;} //testy
-    void setHeight(int newHeight) {height = newHeight;} //testy
-    int left_height(); //testy
-    int right_height(); //testy
-    void setParent(Node *newData); //testy
+    int getHeight() const {return height;}
+    void setHeight(int newHeight) {height = newHeight;}
+    int left_height();
+    int right_height();
+    void setParent(Node *newData);
     Node *getParent() const {return parent;}
-    void setLeft(Node *node); //testy
-    void setRight(Node *node); //testy
+    void setLeft(Node *node);
+    void setRight(Node *node);
 };
 
 class BVS {
     std::string getInorder(Node &root) const;
     std::string getPreorder(Node &root) const;
     std::string getPostorder(Node &root) const;
-    virtual Node *delNode(Node &currentNode, int data);//testy
+    virtual Node *delNode(Node &currentNode, int data);
+    virtual bool insertNode(int data, Node *rootParam);
 protected:
     Node *root;
-    std::pair<Node *,Node *> minNodeInSubtree(Node *currentNode) const; //testy
+    std::pair<Node *,Node *> minNodeInSubtree(Node *currentNode) const;
 public:
     BVS() {}
     BVS( Node *node ) {root = node;}
     BVS( const int array[], const int size );
     Node *getRoot() {return root;}
-    virtual bool insertNode(int data, Node *rootParam); //prerobit rootparam
     std::string inorder() const;
     std::string preorder() const;
     std::string postorder() const;
     bool isNode(int data) const;
     int getMax() const;
     int getMin() const;
+    virtual void insert(int data);
     virtual void deleteNode(int data);
 };
 
@@ -64,14 +65,13 @@ class AVL: public BVS {
     void rotate(Node *node);
     void relink(Node *parent, Node *child, bool make_left_child);
     void setRoot(Node *node) {root = node;}
-    Node *delNode1(Node &currentNode, int data);//testy
+    Node *delNode(Node &currentNode, int data);
+    bool insertNode(int data, Node *rootParam);
 public:
     AVL() {}
-    AVL( const int array[], const int size ); //posielat dlzku array ako parameter
-    bool insertNode(int data, Node *rootParam);
-    void deleteNodeAVL(int data);
+    AVL( const int array[], const int size );
+    void insert(int data);
+    void deleteNode(int data);
 };
 
 #endif //BVS_BVS_H
-
-//AVL ->delete node

@@ -87,13 +87,17 @@ BVS::BVS(const int array[], const int size) {
     }
 }
 
-bool BVS::insertNode(int data, Node *rootParam ) {
+void BVS::insert( int data ) {
     if( root == nullptr ) {
         Node *n = new Node(data);
         root = n;
-        return true;
+        return;
     }
 
+    insertNode(data, getRoot());
+}
+
+bool BVS::insertNode(int data, Node *rootParam ) {
     if( data > rootParam->getValue() ) {
         if( rootParam->getRight() == nullptr ) {
             Node k(data);
@@ -269,12 +273,18 @@ AVL::AVL( const int array[], const int size ) {
     }
 };
 
-bool AVL::insertNode(int data, Node *rootParam) {
+void AVL::insert(int data) {
     if( root == nullptr ) {
         Node *n = new Node(data);
         root = n;
-        return true;
+        return;
     }
+    insertNode(data, getRoot());
+}
+
+
+bool AVL::insertNode(int data, Node *rootParam) {
+
     if( data > rootParam->getValue() ) {
         if( rootParam->getRight() == nullptr ) {
             Node k(data);
@@ -300,23 +310,23 @@ bool AVL::insertNode(int data, Node *rootParam) {
     return false;
 };
 
-void AVL::deleteNodeAVL(int data) {
+void AVL::deleteNode(int data) {
     if( root == nullptr ) {
         throw underflow_error("Binary search tree instance is empty.");
     }
-    root = delNode1(*root, data);
+    root = delNode(*root, data);
 }
 
-Node *AVL::delNode1(Node &currentNode, int data) {
+Node *AVL::delNode(Node &currentNode, int data) {
     if( data > currentNode.getValue() ) {
 
-        Node *n = delNode1( *currentNode.getRight(), data );
+        Node *n = delNode( *currentNode.getRight(), data );
         currentNode.setRight( *n );
         rebalance(currentNode.getRight());
     }
 
     if( data < currentNode.getValue() ) {
-        Node *n = delNode1( *currentNode.getLeft(), data );
+        Node *n = delNode( *currentNode.getLeft(), data );
         currentNode.setLeft( *n );
         rebalance(currentNode.getLeft());
     }
@@ -336,7 +346,7 @@ Node *AVL::delNode1(Node &currentNode, int data) {
                 Node *p = nullptr;
                 currentNode.setRight( *p );
             } else {
-                Node *k = delNode1( *parentAndNode.second , parentAndNode.second->getValue() );
+                Node *k = delNode( *parentAndNode.second , parentAndNode.second->getValue() );
                 parentAndNode.first->setLeft( *k );
             }
 
@@ -348,7 +358,7 @@ Node *AVL::delNode1(Node &currentNode, int data) {
 
 void AVL::rebalance(Node *node) {
     int oldHeight = 0;
-    Node *k = new Node(5); //because later I'm asking (k != nullptr) -> like switch
+    Node *k = new Node(0); //because later I'm asking (k != nullptr) -> like switch
 
     while( node != nullptr && k != nullptr ) {
         oldHeight = node->getHeight();
@@ -406,12 +416,12 @@ Node *AVL::tall_grandchild(Node *node) {
 };
 
 Node *AVL::restructure(Node *node) {
-    Node *y = node->getParent();
-    Node *z = y->getParent();
+    Node *parent = node->getParent();
+    Node *grandParent = parent->getParent();
 
-    if( ( node == y->getRight() ) ==  ( y == z->getRight()) ) {
-        rotate( y );
-        return y;
+    if( ( node == parent->getRight() ) ==  ( parent == grandParent->getRight()) ) {
+        rotate( parent );
+        return parent;
     } else {
         rotate(node);
         rotate(node);
@@ -421,23 +431,22 @@ Node *AVL::restructure(Node *node) {
 
 void AVL::rotate(Node *node) {
     Node *x = node;
-    Node *y = x->getParent();
-    Node *z = y->getParent();
+    Node *parent = x->getParent();
+    Node *grandParent = parent->getParent();
 
-    if( z == nullptr ) {
+    if( grandParent == nullptr ) {
         setRoot( x );
-//        Node *k = nullptr;
-        x->setParent( nullptr ); //k
+        x->setParent( nullptr );
     } else {
-        relink( z, x, (y == z->getLeft()) );
+        relink( grandParent, x, (parent == grandParent->getLeft()) );
     }
 
-    if( x == y->getLeft() ) {
-        relink( y, x->getRight(), true );
-        relink( x, y, false);
+    if( x == parent->getLeft() ) {
+        relink( parent, x->getRight(), true );
+        relink( x, parent, false);
     } else {
-        relink( y, x->getLeft(), false );
-        relink( x, y, true );
+        relink( parent, x->getLeft(), false );
+        relink( x, parent, true );
     }
 }
 

@@ -32,7 +32,7 @@ TEST_F(Test, setLeftNode ) { //pridat testy na nullptr
     ASSERT_EQ( n.getLeft()->getValue(), m.getValue() );
 }
 
-TEST_F(Test, setRightNode ) { //pridat testy na nullptr
+TEST_F(Test, setRightNode ) {
     Node n(5);
     Node m(6);
     n.setRight(m);
@@ -56,7 +56,6 @@ TEST_F(Test, HasRootTest) {
 TEST_F(Test, dontCreateWithEmptyArray ) {
     int *a = new int [0];
     a[0] = '\0';
-//    std::cout << "som tu" << std::endl;
 
     try {
         BVS bvs(a, 0);
@@ -70,16 +69,15 @@ TEST_F(Test, dontCreateWithEmptyArray ) {
     ASSERT_EQ( bvs.getRoot()->getValue(), 0);
 }
 
-
 TEST_F(Test, InsertsNodes ) {
     Node n(5);
     BVS bvs(&n);
-    bvs.insertNode(7, bvs.getRoot());
-    bvs.insertNode(3, bvs.getRoot());
-    bvs.insertNode(8, bvs.getRoot());
-    bvs.insertNode(6, bvs.getRoot());
-    bvs.insertNode(4, bvs.getRoot());
-    bvs.insertNode(2, bvs.getRoot());
+    bvs.insert(7);
+    bvs.insert(3);
+    bvs.insert(8);
+    bvs.insert(6);
+    bvs.insert(4);
+    bvs.insert(2);
     ASSERT_EQ( bvs.getRoot()->getRight()->getValue(), 7 );
     ASSERT_EQ( bvs.getRoot()->getRight()->getRight()->getValue(), 8 );
     ASSERT_EQ( bvs.getRoot()->getRight()->getLeft()->getValue(), 6 );
@@ -98,59 +96,35 @@ TEST_F(Test, InitializesWithArray ) {
 }
 
 TEST_F(Test, inorder ) {
-    int array[1] = {5};
-    BVS bvs(array, 1);
-    bvs.insertNode(7, bvs.getRoot());
-    bvs.insertNode(3, bvs.getRoot());
-    bvs.insertNode(8, bvs.getRoot());
-    bvs.insertNode(6, bvs.getRoot());
-    bvs.insertNode(4, bvs.getRoot());
-    bvs.insertNode(2, bvs.getRoot());
-    ASSERT_EQ( bvs.inorder(), "2,3,4,5,6,7,8");
+    int array[] = {5, 7, 3, 8, 6, 4, 2};
+    BVS bvs(array, 7);
+    ASSERT_STREQ( bvs.inorder().c_str(), "2,3,4,5,6,7,8");
 }
 
 TEST_F(Test, preorder ) {
-    Node n(5);
-    BVS bvs(&n);
-    bvs.insertNode(7, bvs.getRoot());
-    bvs.insertNode(3, bvs.getRoot());
-    bvs.insertNode(8, bvs.getRoot());
-    bvs.insertNode(6, bvs.getRoot());
-    bvs.insertNode(4, bvs.getRoot());
-    bvs.insertNode(2, bvs.getRoot());
-    ASSERT_EQ( bvs.preorder(), "5,3,2,4,7,6,8" );
+    int array[] = {5, 7, 3, 8, 6, 4, 2};
+    BVS bvs(array, 7);
+    ASSERT_STREQ( bvs.preorder().c_str(), "5,3,2,4,7,6,8" );
 }
 
 TEST_F(Test, postorder ) {
-    Node n(5);
-    BVS bvs(&n);
-    bvs.insertNode(7, bvs.getRoot());
-    bvs.insertNode(3, bvs.getRoot());
-    bvs.insertNode(8, bvs.getRoot());
-    bvs.insertNode(6, bvs.getRoot());
-    bvs.insertNode(4, bvs.getRoot());
-    bvs.insertNode(2, bvs.getRoot());
-    ASSERT_EQ( bvs.postorder(), "2,4,3,6,8,7,5" );
+    int array[] = {5, 7, 3, 8, 6, 4, 2};
+    BVS bvs(array, 7);
+    ASSERT_STREQ( bvs.postorder().c_str(), "2,4,3,6,8,7,5" );
 }
 
 TEST_F(Test, emptyInorderPreorderPostorder ) {
     Node n(5);
     BVS bvs(&n);
     bvs.deleteNode(5);
-    ASSERT_EQ( bvs.inorder(), "" );
-    ASSERT_EQ( bvs.preorder(), "" );
-    ASSERT_EQ( bvs.postorder(), "" );
+    ASSERT_STREQ( bvs.inorder().c_str(), "" );
+    ASSERT_STREQ( bvs.preorder().c_str(), "" );
+    ASSERT_STREQ( bvs.postorder().c_str(), "" );
 }
 
 TEST_F(Test, isNode ) {
-    Node n(5);
-    BVS bvs(&n);
-    bvs.insertNode(7, bvs.getRoot());
-    bvs.insertNode(3, bvs.getRoot());
-    bvs.insertNode(8, bvs.getRoot());
-    bvs.insertNode(6, bvs.getRoot());
-    bvs.insertNode(4, bvs.getRoot());
-    bvs.insertNode(2, bvs.getRoot());
+    int array[] = {5, 7, 3, 8, 6, 4, 2};
+    BVS bvs(array, 7);
     ASSERT_EQ( bvs.isNode(2), true );
     ASSERT_EQ( bvs.isNode(20), false );
 }
@@ -167,26 +141,14 @@ TEST_F(Test, isNodeInEmptyTree) {
 }
 
 TEST_F(Test, getMax ) {
-    Node n(5);
-    BVS bvs(&n);
-    bvs.insertNode(7, bvs.getRoot());
-    bvs.insertNode(3, bvs.getRoot());
-    bvs.insertNode(8, bvs.getRoot());
-    bvs.insertNode(6, bvs.getRoot());
-    bvs.insertNode(4, bvs.getRoot());
-    bvs.insertNode(2, bvs.getRoot());
+    int array[] = {5, 7, 3, 8, 6, 4, 2};
+    BVS bvs(array, 7);
     ASSERT_EQ( bvs.getMax(), 8 );
 }
 
 TEST_F(Test, getMin ) {
-    Node n(5);
-    BVS bvs(&n);
-    bvs.insertNode(7, bvs.getRoot());
-    bvs.insertNode(3, bvs.getRoot());
-    bvs.insertNode(8, bvs.getRoot());
-    bvs.insertNode(6, bvs.getRoot());
-    bvs.insertNode(4, bvs.getRoot());
-    bvs.insertNode(2, bvs.getRoot());
+    int array[] = {5, 7, 3, 8, 6, 4, 2};
+    BVS bvs(array, 7);
     ASSERT_EQ( bvs.getMin(), 2 );
 }
 
@@ -207,12 +169,10 @@ TEST_F(Test, getMaxANDgetMinInEmptyTree) {
     }
 }
 
-//delete node + pridat testy na mazanie nullptr (osetrit v kode ci tam taky vrchol je)
+//delete node
 TEST_F(Test, delLeafs ) {
-    Node n(5);
-    BVS bvs(&n);
-    bvs.insertNode(7, bvs.getRoot());
-    bvs.insertNode(3, bvs.getRoot());
+    int array[] = {5, 7, 3};
+    BVS bvs(array, 3);
     bvs.deleteNode(3);
     ASSERT_EQ( bvs.getRoot()->getLeft(), nullptr );
     bvs.deleteNode(7);
@@ -230,14 +190,14 @@ TEST_F(Test, deleteEmptyBVS ) {
         EXPECT_EQ( err.what(), std::string("Binary search tree instance is empty."));
     }
 
-    bvs.insertNode(5, bvs.getRoot());
+    bvs.insert(5);
     ASSERT_EQ(bvs.getRoot()->getValue(), 5);
 }
 
 TEST_F(Test, delNodeWithLeftSon ) {
     Node n(5);
     BVS bvs(&n);
-    bvs.insertNode(3, bvs.getRoot());
+    bvs.insert(3);
     bvs.deleteNode(5);
     ASSERT_EQ( bvs.getRoot()->getLeft(), nullptr );
     ASSERT_EQ( bvs.getRoot()->getValue(), 3);
@@ -247,7 +207,7 @@ TEST_F(Test, delNodeWithLeftSon ) {
 TEST_F(Test, delNodeWithRightSon ) {
     Node n(5);
     BVS bvs(&n);
-    bvs.insertNode(7, bvs.getRoot());
+    bvs.insert(7);
     bvs.deleteNode(5);
     ASSERT_EQ( bvs.getRoot()->getRight(), nullptr );
     ASSERT_EQ( bvs.getRoot()->getValue(), 7);
@@ -256,8 +216,8 @@ TEST_F(Test, delNodeWithRightSon ) {
 TEST_F(Test, delNodeWithBothSonsInSimpleTree ) {
     Node n(5);
     BVS bvs(&n);
-    bvs.insertNode(7, bvs.getRoot());
-    bvs.insertNode(3, bvs.getRoot());
+    bvs.insert(7);
+    bvs.insert(3);
     bvs.deleteNode(5);
     ASSERT_EQ( bvs.getRoot()->getRight(), nullptr );
     ASSERT_EQ( bvs.getRoot()->getValue(), 7);
@@ -265,14 +225,8 @@ TEST_F(Test, delNodeWithBothSonsInSimpleTree ) {
 }
 
 TEST_F(Test, delNodeWithBothSonsInComplexTree ) {
-    Node n(5);
-    BVS bvs(&n);
-    bvs.insertNode(7, bvs.getRoot());
-    bvs.insertNode(3, bvs.getRoot());
-    bvs.insertNode(8, bvs.getRoot());
-    bvs.insertNode(6, bvs.getRoot());
-    bvs.insertNode(4, bvs.getRoot());
-    bvs.insertNode(2, bvs.getRoot());
+    int array[] = {5, 7, 3, 8, 6, 4, 2};
+    BVS bvs(array, 7);
     bvs.deleteNode(5);
     ASSERT_EQ( bvs.getRoot()->getValue(), 6);
     ASSERT_EQ( bvs.getRoot()->getRight()->getValue(), 7 );
@@ -323,20 +277,18 @@ TEST_F(Test, leftRightRotation ) {
 }
 
 TEST_F( Test, insertAVLNodesAndRebalance1 ) {
-    int array[1] = { 7 };
-    AVL avl( array, 1 );
-    avl.insertNode( 8, avl.getRoot());
-    avl.insertNode( 9, avl.getRoot());
+    int array[] = { 7, 8, 9 };
+    AVL avl( array, 3 );
     ASSERT_EQ( avl.getRoot()->getValue(), 8 );
     ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 7 );
     ASSERT_EQ( avl.getRoot()->getRight()->getValue(), 9 );
-    avl.insertNode( 10, avl.getRoot());
-    avl.insertNode( 6, avl.getRoot());
-    avl.insertNode( 5, avl.getRoot());
+    avl.insert( 10);
+    avl.insert( 6);
+    avl.insert( 5);
     ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 6 );
     ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 7 );
     ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 5 );
-    ASSERT_EQ( avl.inorder(), "5,6,7,8,9,10" );
+    ASSERT_STREQ( avl.inorder().c_str(), "5,6,7,8,9,10" );
 }
 
 TEST_F( Test, insertAVLNodesAndRebalance2 ) {
@@ -348,8 +300,8 @@ TEST_F( Test, insertAVLNodesAndRebalance2 ) {
     ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 5 );
     ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getLeft()->getValue(), 4 );
     ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getRight()->getValue(), 6 );
-    ASSERT_EQ( avl.inorder(), "4,5,6,10,11,13,15,16" );
-    avl.insertNode( 7, avl.getRoot() );
+    ASSERT_STREQ( avl.inorder().c_str(), "4,5,6,10,11,13,15,16" );
+    avl.insert(7);
     ASSERT_EQ( avl.getRoot()->getValue(), 13 );
     ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 6 );
     ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 10 );
@@ -358,16 +310,16 @@ TEST_F( Test, insertAVLNodesAndRebalance2 ) {
     ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 5 );
     ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getLeft()->getValue(), 4 );
     ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getRight(), nullptr );
-    ASSERT_EQ( avl.inorder(), "4,5,6,7,10,11,13,15,16" );
+    ASSERT_STREQ( avl.inorder().c_str(), "4,5,6,7,10,11,13,15,16" );
 }
 
 //delete AVL Node tests
 TEST_F( Test, deleteLeafsAVL ) {
     int array[6] = {7,8,9,10,6,5};
     AVL avl(array, 6);
-    ASSERT_EQ( avl.inorder(), "5,6,7,8,9,10");
+    ASSERT_STREQ( avl.inorder().c_str(), "5,6,7,8,9,10");
     avl.deleteNode(5);
-    ASSERT_EQ( avl.inorder(), "6,7,8,9,10");
+    ASSERT_STREQ( avl.inorder().c_str(), "6,7,8,9,10");
 }
 
 TEST_F(Test, deleteEmptyAVL ) {
@@ -381,7 +333,7 @@ TEST_F(Test, deleteEmptyAVL ) {
         EXPECT_EQ( err.what(), std::string("Binary search tree instance is empty."));
     }
 
-    avl.insertNode(5, avl.getRoot());
+    avl.insert(5);
     ASSERT_EQ( avl.getRoot()->getValue(), 5);
 }
 
@@ -406,7 +358,7 @@ TEST_F(Test, delNodeWithRightSonInAVL ) {
 TEST_F(Test, delNodeWithBothSonsInSimpleTreeInAVLAndRebalance ) {
     int array[8] = {5,7,3,8,6,4,2,1};
     AVL avl(array, 8);
-    avl.deleteNodeAVL(3);
+    avl.deleteNode(3);
     ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 2 );
     ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 1);
     ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 4);
@@ -415,7 +367,7 @@ TEST_F(Test, delNodeWithBothSonsInSimpleTreeInAVLAndRebalance ) {
 TEST_F(Test, delLeafAndRebalance ) {
     int array[8] = {5,7,3,8,6,4,2,1};
     AVL avl(array, 8);
-    avl.deleteNodeAVL(4);
+    avl.deleteNode(4);
     ASSERT_EQ( avl.getRoot()->getLeft()->getValue(), 2 );
     ASSERT_EQ( avl.getRoot()->getLeft()->getLeft()->getValue(), 1);
     ASSERT_EQ( avl.getRoot()->getLeft()->getRight()->getValue(), 3);
