@@ -20,11 +20,7 @@ int Node::getValue() const {
     return data;
 }
 
-void Node::setLeft( Node &newNode ) {//ano, este to opravim, resp, zamyslim sa nad tym
-//    if( &newNode != nullptr ) {
-//        left = new Node;
-//        *left = newNode;
-//    }
+void Node::setLeft( Node &newNode ) {
     left = new Node;
     if( &newNode != nullptr ) {
         *left = newNode;
@@ -34,7 +30,7 @@ void Node::setLeft( Node &newNode ) {//ano, este to opravim, resp, zamyslim sa n
     return;
 }
 
-void Node::setRight( Node &newNode ) { //ano, este to opravim, resp, zamyslim sa nad tym
+void Node::setRight( Node &newNode ) {
     right = new Node;
     if( &newNode != nullptr ) {
         *right = newNode;
